@@ -1,0 +1,22 @@
+services:
+  egress-control-sidecar:
+    build:
+      context: ./egress-control-sidecar
+    entrypoint: ["/opt/egress-sidecar/entrypoint.sh"]
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+  main:
+    build:
+      context: ./main
+    command: sleep infinity
+    network_mode: "service:egress-control-sidecar"
+    # Optional guardrail for untrusted code. The demo works without these lines
+    # under Docker defaults, but enabling them reduces future bypass risk.
+    # cap_drop:
+    #   - ALL
+    # security_opt:
+    #   - no-new-privileges:true
+    depends_on:
+      - egress-control-sidecar
